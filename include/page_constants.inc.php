@@ -118,6 +118,14 @@ if (array_key_exists(TR_PRIV_HOME, $privs) && Utility::authenticate($privs[TR_PR
 	
 	// catia
 	$_pages['home/structs/outline.php']['parent'] = 'home/index.php';
+    
+    //lti provider for each authored course
+    if (isset($_current_user) && ($_current_user->isAuthor())) {
+        $_pages['oauth/ltiprovider_form.php']['title_var'] = 'Form';
+        $_pages['oauth/ltiprovider_form.php']['parent'] = 'home/index.php';
+        $_pages['oauth/lti_providers.php']['title_var'] = 'Info';
+        $_pages['oauth/lti_providers.php']['parent'] = 'home/index.php';
+    }
 	
 	if(isset($_struct_name)) 
 		$_pages['home/structs/outline.php']['title'] = '"'. $_struct_name . ' based" structure outline';

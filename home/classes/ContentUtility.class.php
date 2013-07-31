@@ -700,6 +700,10 @@ class ContentUtility {
 				  'title' => _AT('export_content_in_cc'), 
 				  'url' => $_base_href . 'home/imscc/ims_export.php?_cid='.$content_row['content_id'].SEP.'to_a4a=1',
 				  'icon' => $_base_href . 'themes/'.$_SESSION['prefs']['PREF_THEME'].'/images/export_cc.png');
+            $tool_shortcuts[] = array(
+				  'title' => _AT('LTI_PROVIDER'), 
+				  'url' => $_base_href . 'oauth/ltiprovider_form.php?_course_id='.$_course_id ,
+				  'icon' => $_base_href . '/images/ltiprovider-icon.png');
 		}
 		
 		if (isset($_current_user) && ($_current_user->isAuthor($_course_id) || $_current_user->isAdmin())) {

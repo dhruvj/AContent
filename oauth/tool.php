@@ -1,15 +1,20 @@
 <?php 
 // Load up the Basic LTI Support code
+define('TR_INCLUDE_PATH', '../include/');
+require(TR_INCLUDE_PATH.'vitals.inc.php');
+require_once(TR_INCLUDE_PATH.'classes/DAO/ToolProviderDAO.class.php');
+require_once(TR_INCLUDE_PATH.'classes/DAO/UsersDAO.class.php');
+require_once(TR_INCLUDE_PATH.'classes/DAO/LTIUsersDAO.class.php');
+require_once(TR_INCLUDE_PATH.'classes/DAO/UserCoursesDAO.class.php');
 require_once 'ims-blti/blti.php';
 
-error_reporting(E_ALL & ~E_NOTICE);
 ini_set("display_errors", 1);
+
 header('Content-Type: text/html; charset=utf-8'); 
 
-$parm	= array('table'			=> 'AC_oauth_server_consumers',
+$parm	= array('table'			=> 'ac_tool_provider',
 				'key_column'	=> 'consumer_key',
-				'secret_column'	=> 'consumer_secret',
-				'context_column'=> 'consumer'
+				'secret_column'	=> 'shared_secret',
 				);
 
 // Initialize, all secrets are 'secret', do not set session, and do not redirect
@@ -18,49 +23,79 @@ $context = new BLTI($parm, false, false);
 
 ?>
 <?php
-
+//print_r($_POST)."<br>";
 if ( $context->valid ) {
-    if ( $_POST['lis_result_sourcedid'] && $_POST['ext_ims_lis_basic_outcome_url'] ) {
-        print "<p><b>Note:</b> This launch can submit a grade back to the LMS using POX-Based Outcomes.  Press\n";
-        print '<a href="setoutcome_pox.php?sourcedid='.$_POST['lis_result_sourcedid'];
-        print '&key='.$_POST['oauth_consumer_key'];
-        print '&url='.$_POST['ext_ims_lis_basic_outcome_url'].'">';
-        print 'here to send a grade back via POX</a>.</p>'."\n";
-    } 
-    if ( $_POST['lis_result_sourcedid'] && $_POST['ext_ims_lis_basic_outcome_url'] ) {
-        print "<p><b>Note:</b> This launch can submit a grade back to the LMS using Basic Outcomes.  Press\n";
-        print '<a href="setoutcome.php?sourcedid='.$_POST['lis_result_sourcedid'];
-        print '&key='.$_POST['oauth_consumer_key'];
-        print '&url='.$_POST['ext_ims_lis_basic_outcome_url'].'">';
-        print 'here to send a grade back</a>.</p>'."\n";
-    } 
-    if ( $_POST['ext_ims_lis_memberships_id'] && $_POST['ext_ims_lis_memberships_url'] ) {
-        print "<p><b>Note:</b> This launch can retrieve a full roster the LMS.  Press\n";
-        print '<a href="memberships.php?id='.$_POST['ext_ims_lis_memberships_id'];
-        print '&key='.$_POST['oauth_consumer_key'];
-        print '&url='.$_POST['ext_ims_lis_memberships_url'].'">';
-        print 'here to retrieve a roster from this LMS</a>.</p>'."\n";
+    //get tool by consumer key
+    $toolprovider = new ToolProviderDAO();
+    $ltiuser = new LTIusersDAO();
+    $tool = $toolprovider->getToolByConsumerKey($context->getConsumerKey());
+    // check if tool is enabled
+    if (!$tool[0]['enabled']) {
+        echo "Tool is not enabled";
+        exit;
     }
-    if ( $_POST['ext_ims_lti_tool_setting_id'] && $_POST['ext_ims_lti_tool_setting_url'] ) {
-        print "<p><b>Note:</b> This launch can store an instance setting in the LMS.  Press\n";
-        print '<a href="setting.php?id='.$_POST['ext_ims_lti_tool_setting_id'];
-        print '&key='.$_POST['oauth_consumer_key'];
-        print '&url='.$_POST['ext_ims_lti_tool_setting_url'].'">';
-        print 'here to exercise the tool setting service</a>.</p>'."\n";
+    $usercourse = new UserCoursesDAO();
+    $course = $usercourse->getCourseByToolId($tool[0]['tool_id']);
+    $authorid = $course[0]['user_id'];
+    $author = $ltiuser->getUserByID($authorid);
+    if ($context->isInstructor() && $context->getUserEmail() == $author['email']) {
+        $_SESSION['user_id'] = $author['user_id'];
+    } else {
+        $login = 'ltiprovider:'.$tool[0]['tool_id'].':'.$context->getUserLKey();               //todo:  may have to change
+        $pwd = 'ltiprovider:'.$tool[0]['tool_id'].':'.$context->getUserLKey();
+        if (!$ltiuser->Validate($login, $pwd)) {
+            if ($ltiuser->enrollments($tool[0]['tool_id']) == $tool[0]['max_enrollments']) {
+                echo 'Maxx No of enrollments crossed';
+                
+                exit;
+            }
+            $user_group_id = 4;
+            $email = lti.":".$context->getUserEmail();
+            $first_name = 'LTI';
+            $last_name = 'user';
+            $role = 0;
+            $organization = 'None';
+            $phone = 'None';
+            $address = 'None';
+            $city = $tool[0]['default_city'] ? $tool[0]['default_city'] : 'None';
+            $province = 'None';
+            $country = $tool[0]['default_country'] ? $tool[0]['default_country'] : 'None';
+            $postal_code = 'None';
+            $status = 1;
+            $ltiuser->Create($user_group_id, 
+                             $login, 
+                             $pwd,
+                             $email,
+                             $first_name, 
+                             $last_name, 
+                             $role, 
+                             $organization,
+                             $phone,
+                             $address,
+                             $city,
+                             $province,
+                             $country,
+                             $postal_code,
+                             $status
+                            );
+        }
+        $user = $ltiuser->Validate($login, $pwd);                  //Check if the user created!
+        //check if the user is assigned to any tool
+        if (!$ltiuser->istoolAssignedToUser($user[0]['user_id'], $tool[0]['tool_id'])) {
+            $ltiuser->assignToolToUser($user[0]['user_id'], $tool[0]['tool_id']);
+        }
+        //enroll the user in course
+        if (!$ltiuser->isEnrolled($user[0]['user_id'])) {
+            $ltiuser->enroll($user[0]['user_id'], $tool[0]['course_id'], 2);
+        }
+        //login!
+        $ltiuser->setLastLogin($user[0]['user_id']);
+        $_SESSION['user_id'] = $user[0]['user_id'];
     }
-    print "<pre>\n";
-    print "Context Information:\n\n";
-    print $context->dump();
-    print "</pre>\n";
+    header("Location: ../home/course/outline.php?_course_id=".$tool[0]['course_id']);
+    exit;
 } else {
     print "<p style=\"color:red\">Could not establish context: ".$context->message."<p>\n";
 }
-
-print "<pre>\n";
-print "Raw POST Parameters:\n\n";
-foreach($_POST as $key => $value ) {
-    print "$key=$value (".mb_detect_encoding($value).")\n";
-}
-print "</pre>";
 
 ?>

@@ -158,5 +158,33 @@ class UserCoursesDAO extends DAO {
         $rows = $this->execute($sql);
         return is_array($rows);
     }
+     /**
+     * Return course information authored by the user
+     * @access  public
+     * @param   user id
+     * @return  rows of courses authored by the user with id as $user_id
+     * @author  Dhruv Jagetiya
+     */
+    public function getAuthoredCoursesByUserId($user_id) {
+        $sql = "SELECT * FROM ".TABLE_PREFIX."user_courses uc, ".TABLE_PREFIX."courses c
+                WHERE uc.user_id=".$user_id."
+                AND uc.course_id = c.course_id
+                AND uc.role = ".TR_USERROLE_AUTHOR."
+                ORDER BY c.title";
+        return $this->execute($sql);
+    }
+     /**
+     * Return course information of tool
+     * @access  public
+     * @param   tool id
+     * @return  rows of course shared by tool
+     * @author  Dhruv Jagetiya
+     */
+    public function getCourseByToolId($tool_id) {
+        $sql = "SELECT * FROM ".TABLE_PREFIX."courses c, ".TABLE_PREFIX."tool_provider t
+                WHERE t.tool_id=".$tool_id." 
+                AND c.course_id = t.course_id"; 
+        return $this->execute($sql);
+    }
 }
 ?>
