@@ -66,8 +66,7 @@ class BLTI {
             $this->message = "Constructor requires a secret or database information.";
             return;
         } else {
-            $sql = 'SELECT * FROM '.$parm['table'].' WHERE '.
-                ($parm['key_column'] ? $parm['key_column'] : 'oauth_consumer_key').
+            $sql = 'SELECT * FROM '.$parm['table'].' WHERE '. $parm['key_column'].
                 '='.
                 "'".mysql_real_escape_string($oauth_consumer_key)."'";
             $result = mysql_query($sql);
@@ -77,8 +76,8 @@ class BLTI {
                 return;
             } else {
                 while ($row = mysql_fetch_assoc($result)) {
-                    $secret = $row[$parms['secret_column']?$parms['secret_column']:'secret'];
-                    $context_id = $row[$parms['context_column']?$parms['context_column']:'context_id'];
+                    $secret = $row[$parm['secret_column']];
+                    $context_id = $row[$parm['context_column']?$parm['context_column']:'context_id'];
                     if ( $context_id ) $this->context_id = $context_id;
                     $this->row = $row;
                     break;
@@ -194,6 +193,13 @@ class BLTI {
         $oauth = $this->info['oauth_consumer_key'];
         $id = $this->info['user_id'];
         if ( strlen($id) > 0 and strlen($oauth) > 0 ) return $oauth . ':' . $id;
+        return false;
+    }
+    
+    // Un-Namespaced
+    function getUserLKey() {
+        $id = $this->info['user_id'];
+        if ( strlen($id) > 0 ) return $id;
         return false;
     }
 

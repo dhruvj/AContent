@@ -29,7 +29,7 @@ if (!defined('TR_INCLUDE_PATH')) { exit; } ?>
       title="<?php echo (($_GET['alternative'] == 1) ? _AT('stop_apply_audio_alternatives') : _AT('apply_audio_alternatives')); ?>" 
       border="0" class="img1616" />
   </a>
-<?php endif; // END OF has audio alternative?>
+    <?php endif; // END OF has audio alternative?>
 <?php if ($this->has_visual_alternative) :?>
   <a href="<?php echo $_SERVER['PHP_SELF'].'?_cid='.$this->cid.(($_GET['alternative'] == 4) ? '' : htmlentities_utf8(SEP).'alternative=4'); ?>">
     <img src="<?php echo TR_BASE_HREF; ?>images/<?php echo (($_GET['alternative'] == 4) ? 'pause.png' : 'visual_alternative.png'); ?>" 
