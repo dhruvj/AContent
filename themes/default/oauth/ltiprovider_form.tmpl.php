@@ -27,30 +27,34 @@
 
 		<tr>
 			<th align="left"><span class="required" title="<?php echo _AT('required_field'); ?>">*</span><label for="shared_secret"><?php echo _AT('shared_secret'); ?></label>:</th>
-			<td align="left"><input id="shared_secret" name="shared_secret" type="text" size="60" value="<?php echo $this->tool['shared_secret']; ?>" /><?php echo _AT('LTI_KEY_RANGE'); ?></td>
+			<td align="left"><input id="shared_secret" name="shared_secret" type="text" size="60" value="<?php echo $this->tool['shared_secret']; ?>" /> <?php echo _AT('lti_key_range'); ?></td>
 		</tr>
 
 		<tr>
 			<th align="left"><span class="required" title="<?php echo _AT('required_field'); ?>">*</span><label for="consumer_key"><?php echo _AT('consumer_key'); ?></label>:</th>
-			<td align="left"><input id="consumer_key" name="consumer_key" type="text" size="60" value="<?php echo $this->tool['consumer_key']; ?>" /><?php echo _AT('LTI_KEY_RANGE'); ?></td>
+			<td align="left"><input id="consumer_key" name="consumer_key" <?php if ($this->isedit == 1) echo " readonly "; ?>type="text" size="60" value="<?php echo $this->tool['consumer_key']; ?>" /> <?php echo _AT('lti_key_range'); ?></td>
 		</tr>
     
 		<tr>
-			<th align="left"><span class="required" title="<?php echo _AT('required_field'); ?>">*</span><?php echo _AT('course_selected'); ?>:</th>
+			<th align="left"><span class="required" title="<?php echo _AT('required_field'); ?>">*</span><?php echo _AT('select_course'); ?>:</th>
 			<td>
 			<?php
+            if(!empty($this->my_courses)) {
 				foreach ($this->my_courses as $mycourse) {
 			?>
 				<input id="course_<?php echo $mycourse['course_id'];?>" name="course_id" type="radio" <?php if ($mycourse['course_id'] == $this->course_id || $this->tool['course_id'] == $mycourse['course_id']) echo "checked";?> value="<?php echo $mycourse['course_id']; ?>" /><label for="course_<?php echo $mycourse['course_id'];?>"><?php echo $mycourse['title']; ?></label>
 				<br>	
 			<?php
 				}
+            } else {
+                echo _AT('none_found');
+            }
 			?>
             </td>
         </tr>
 		<tr>
 			<th align="left"><span class="required" title="<?php echo _AT('required_field'); ?>">*</span><label for="max_enrollments"><?php echo _AT('max_enrollments'); ?></label>:</th>
-			<td align="left"><input id="max_enrollments" name="max_enrollments" type="text" value="<?php echo $this->tool['max_enrollments'] ?>"/><?php echo _AT('zero_infinite'); ?></td>
+			<td align="left"><input id="max_enrollments" name="max_enrollments" type="text" value="<?php echo $this->tool['max_enrollments'] ?>"/> <?php echo _AT('zero_infinite'); ?></td>
 		</tr>
 		<tr>
 			<th align="left"><label for="default_city"><?php echo _AT('default_city'); ?></label>:</th>

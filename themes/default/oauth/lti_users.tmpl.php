@@ -10,51 +10,46 @@
 /* as published by the Free Software Foundation.                        */
 /************************************************************************/
 ?>
-<br>
-    <?php echo _AT('create_tool_text');?><b><a href="./oauth/ltiprovider_form.php"><?php echo _AT("create_lti_tool"); ?> </b> </a><br>
-<br>
+
 <form name="form" method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>">
 <table class="data" summary="" rules="cols">
 <thead>
 <tr>
 	<th scope="col">&nbsp;</th>
-	<th scope="col"><?php echo _AT('title'); ?></th>
-	<th scope="col"><?php echo _AT('consumer_key'); ?></th>
-    <th scope="col"><?php echo _AT('shared_secret');	  ?></th>
-    <th scope="col"><?php echo _AT('url');	  ?></th>
-    <th scope="col"><?php echo _AT('status');	  ?></th>
+    <th scope="col"><?php echo _AT('user_name');	  ?></th>
+    <th scope="col"><?php echo _AT('email');	  ?></th>
+    <th scope="col"><?php echo _AT('last_login');	  ?></th>
+    <th scope="col"><?php echo _AT('user_status');	  ?></th>
 </tr>
 </thead>
 
-<?php  if (!empty($this->mytools)) {?>
+<?php if (!empty($this->users)) {?>
 	<tfoot>
 	<tr>
 		<td colspan="3">
-			<input type="submit" name="edit" value="<?php echo _AT('edit'); ?>" />
+			<input type="submit" name="disable" value="<?php echo _AT('disable'); ?>" />
+            <input type="submit" name="enable" value="<?php echo _AT('enable'); ?>" />
             <input type="submit" name="delete" value="<?php echo _AT('delete'); ?>" />
-            <input type="submit" name="edit_users" value="<?php echo _AT('edit_users'); ?>" />
 		</td>
 	</tr>
 	</tfoot>
 	<tbody>
-
-	<?php foreach ($this->mytools as $tool) { ?>
+	<?php foreach ($this->users as $user) { ?>
 		<tr>
-			<td><input type="radio" name="id" value="<?php echo $tool['tool_id']; ?>" id="<?php echo $tool['tool_id']; ?>" /></td>
-			<td><label for="<?php echo $tool['tool_id']; ?>"><?php echo $tool['course_title']; ?></label></td>
-			<td><?php echo $tool['consumer_key']; ?></td>
-            <td><?php echo $tool['shared_secret']; ?></td>
-            <td><?php echo $tool['url'] ?></td>
-            <td><?php echo ($tool['enabled'] == 1) ? "Enabled" : "Disabled"; ?></td>
+            <input type="hidden" name="tool_id" value="<?php echo $this->tool_id; ?>" id="<?php $this->tool_id; ?>" />
+			<td><input type="radio" name="user_id" value="<?php echo $user['user_id']; ?>" id="<?php echo $user['user_id']; ?>" /></td>
+			<td><label for="<?php echo $user['user_id']; ?>"><?php echo $user['user_name']==NULL?"LTI User":$user['user_name']; ?></label></td>
+			<td><?php echo str_replace("lti:", "", $user['email']); ?></td>
+            <td><?php echo $user['last_login']; ?></td>
+            <td><?php echo ($user['status'] == 1) ? "Enabled" : "Disabled"; ?></td>
 		</tr>
-	<?php }
-    } else { ?>
+	<?php }} // end of if (is_array($rows)) 
+	else { ?>
 	<tbody>
 	<tr>
 		<td colspan="7"><?php echo _AT('none_found'); ?></td>
 	</tr>
-<?php }
-// end of else ?>
+<?php } // end of else ?>
 </tbody>
 </table>
 </form>

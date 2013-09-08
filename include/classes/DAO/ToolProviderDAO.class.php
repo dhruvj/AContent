@@ -13,6 +13,7 @@ if (!defined('TR_INCLUDE_PATH')) exit;
 
 require_once(TR_INCLUDE_PATH. 'classes/DAO/DAO.class.php');
 require_once(TR_INCLUDE_PATH. 'classes/DAO/LTIusersDAO.class.php');
+
 class ToolProviderDAO extends DAO {
     
     /**
@@ -92,10 +93,17 @@ class ToolProviderDAO extends DAO {
      * @author  Dhruv Jagetiya
      */
     public function Delete($tool_id) {
+        $ltiuser = new LTIusersDAO();
+        $sql = "SELECT user_id from ".TABLE_PREFIX."lti_users WHERE tool_id = ".$tool_id;
+        $users = $this->execute($sql);
+        if(!empty($users)) {
+            foreach ($users as $user) {
+                $ltiuser->Delete($user['user_id']);
+            }
+        }
+        //Remove the entry of the tool
         $sql = "DELETE FROM ".TABLE_PREFIX."tool_provider
                 WHERE tool_id=".$tool_id;
-        $ltiuser = new LTIusersDAO();
-        $ltiuser->unrollAll($tool_id);
         return $this->execute($sql);
     }
      /**
@@ -130,7 +138,8 @@ class ToolProviderDAO extends DAO {
      * @author  Dhruv Jagetiya
      */
     public function isToolByUser($user_id, $tool_id) {
-        foreach ($this->getToolByUserId($user_id) as $tool) {
+        $tools = $this->getToolByUserId($user_id);
+        foreach ($tools as $tool) {
             if ($tool['tool_id'] == $tool_id)
                 return true;
         }

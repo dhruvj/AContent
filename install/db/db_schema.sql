@@ -529,6 +529,25 @@ CREATE TABLE `secondary_resources_types` (
   PRIMARY KEY  (`secondary_resource_id`,`type_id`)
 ) ENGINE = MYISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE `tool_provider` (
+    `tool_id` int(11) NOT NULL AUTO_INCREMENT,
+    `user_id` int(11) NOT NULL,
+    `shared_secret` varchar(32) NOT NULL,
+    `consumer_key` varchar(32) NOT NULL,
+    `course_id` int(11) NOT NULL,
+    `max_enrollments` int(11) NOT NULL,
+    `default_city` varchar(100) DEFAULT NULL,
+    `default_country` varchar(100) DEFAULT NULL,
+    `enabled` tinyint(1) NOT NULL,
+    PRIMARY KEY (`tool_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `lti_users` (
+    `user_id` int(11) NOT NULL,
+    `tool_id` int(11) NOT NULL,
+    `user_name` varchar(100) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 INSERT INTO `resource_types` VALUES
 (1, 'auditory'),
 (2, 'sign_language'),
@@ -1073,6 +1092,7 @@ INSERT INTO `privileges` (`privilege_id`, `title_var`, `description`, `create_da
 INSERT INTO `user_groups` (`user_group_id`, `title`, `description`, `create_date`) VALUES (1, 'Administrator', 'Administrate users, user groups, languages and updates.', now());
 INSERT INTO `user_groups` (`user_group_id`, `title`, `description`, `create_date`) VALUES (2, 'User', 'Regular user.', now());
 INSERT INTO `user_groups` (`user_group_id`, `title`, `description`, `create_date`) VALUES (3, 'Translator', 'Translate AContent terms into a others language.', now());
+INSERT INTO `user_groups` (`user_group_id`, `title`, `description`, `create_date`) VALUES (4, 'LTI_user', 'LTI-Provider', now());
 
 INSERT INTO `user_group_privilege` (`user_group_id`, `privilege_id`, `user_requirement`) VALUES (1, 1, 0);
 INSERT INTO `user_group_privilege` (`user_group_id`, `privilege_id`, `user_requirement`) VALUES (1, 2, 0);
@@ -1092,6 +1112,7 @@ INSERT INTO `user_group_privilege` (`user_group_id`, `privilege_id`, `user_requi
 INSERT INTO `user_group_privilege` (`user_group_id`, `privilege_id`, `user_requirement`) VALUES (3, 5, 0);
 INSERT INTO `user_group_privilege` (`user_group_id`, `privilege_id`, `user_requirement`) VALUES (3, 6, 0);
 INSERT INTO `user_group_privilege` (`user_group_id`, `privilege_id`, `user_requirement`) VALUES (3, 10, 0);
+INSERT INTO `user_group_privilege` (`user_group_id`, `privilege_id`, `user_requirement`) VALUES (4, 1, 0);
 
 # insert default atutor account
 INSERT INTO `users` (`user_id`, `login`, `password`, `user_group_id`, `first_name`, `last_name`, `web_service_id`, `status`, `create_date`) VALUES (1, 'ATutor', '0cbab2aec26a53b0107487d43b1b8eb29384ad10', 2, 'ATutor', 'ATutor', '90c3cd6f656739969847f3a99ac0f3c7', 1, now());

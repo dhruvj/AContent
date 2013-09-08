@@ -43,7 +43,7 @@ if (isset($_POST['submit'])) {
     $tool['enabled'] = (strcmp($_POST['enabled'], 'on') == 0) ? 1 : 0;
     //check on consumer key
     $consumer_keys = $toolprovider->getToolByConsumerKey($tool['consumer_key']);
-    if ($consumer_keys) {
+    if ($consumer_keys && !isset($_GET['edit'])) {
         $msg->addError('CONSUMER_KEY_EXISTS');
     }
     if(!(preg_match("/[A-Za-z0-9\.]{10,32}/", $tool['consumer_key']))) { //minimum length of key must be 10 and max 32
@@ -56,20 +56,21 @@ if (isset($_POST['submit'])) {
     if (!$userCoursesDAO->get($_SESSION['user_id'], strval($tool['course_id']))) {
         $msg->addError('INVALID_COURSE');
     }
-    //check on max enrollments: it must be >=0 and an integer
-    if (!(intval($tool['max_enrollments']) >= 0)) {
+    //check on max enrollments: it must be >0 and an integer
+    if (!(intval($tool['max_enrollments']) > 0)) {
         $msg->addError('INVALID_ENROLLMENTS');
     }
     //checks done!
     if ($msg->containsErrors()) {
-        header('Location: ./ltiprovider_form.php');
+        header('Location: ./lti_providers.php');
         exit;
     }
     //check if we are editing
-    if ($_GET['edit'] == "Edit") {
-        if (isset ($_GET['id'])) {
+    $checktool = $toolprovider->getToolByToolId(intval($_GET['id']));
+    if (isset($_GET['edit'])) {
+        if (isset ($_GET['id']) && $checktool[0]['consumer_key'] == $tool['consumer_key']) {
             if ($toolprovider->isToolByUser($_SESSION['user_id'], intval($_GET['id']))) {
-                if ($toolprovider->Update($tool, $_GET['id'])) {           // update the tool
+                if ($toolprovider->Update($tool, intval($_GET['id']))) {           // update the tool
                     $msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
                 } else {
                     $msg->addError('ACTION_FAILED');

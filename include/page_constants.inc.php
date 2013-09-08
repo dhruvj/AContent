@@ -121,10 +121,12 @@ if (array_key_exists(TR_PRIV_HOME, $privs) && Utility::authenticate($privs[TR_PR
     
     //lti provider for each authored course
     if (isset($_current_user) && ($_current_user->isAuthor())) {
-        $_pages['oauth/ltiprovider_form.php']['title_var'] = 'Form';
-        $_pages['oauth/ltiprovider_form.php']['parent'] = 'home/index.php';
-        $_pages['oauth/lti_providers.php']['title_var'] = 'Info';
+        $_pages['oauth/ltiprovider_form.php']['title_var'] = 'create_tool';
+        $_pages['oauth/ltiprovider_form.php']['parent'] = 'oauth/lti_providers.php';
+        $_pages['oauth/lti_providers.php']['title_var'] = 'summary_tools';
         $_pages['oauth/lti_providers.php']['parent'] = 'home/index.php';
+        $_pages['oauth/lti_users.php']['title_var'] = 'lti_users';
+        $_pages['oauth/lti_users.php']['parent'] = 'oauth/lti_providers.php';
     }
 	
 	if(isset($_struct_name)) 

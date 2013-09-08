@@ -4,7 +4,7 @@ define('TR_INCLUDE_PATH', '../include/');
 require(TR_INCLUDE_PATH.'vitals.inc.php');
 require_once(TR_INCLUDE_PATH.'classes/DAO/ToolProviderDAO.class.php');
 require_once(TR_INCLUDE_PATH.'classes/DAO/UsersDAO.class.php');
-require_once(TR_INCLUDE_PATH.'classes/DAO/LTIUsersDAO.class.php');
+require_once(TR_INCLUDE_PATH.'classes/DAO/LTIusersDAO.class.php');
 require_once(TR_INCLUDE_PATH.'classes/DAO/UserCoursesDAO.class.php');
 require_once 'ims-blti/blti.php';
 
@@ -12,7 +12,7 @@ ini_set("display_errors", 1);
 
 header('Content-Type: text/html; charset=utf-8'); 
 
-$parm	= array('table'			=> 'ac_tool_provider',
+$parm	= array('table'			=> TABLE_PREFIX.'tool_provider',
 				'key_column'	=> 'consumer_key',
 				'secret_column'	=> 'shared_secret',
 				);
@@ -31,7 +31,8 @@ if ( $context->valid ) {
     $tool = $toolprovider->getToolByConsumerKey($context->getConsumerKey());
     // check if tool is enabled
     if (!$tool[0]['enabled']) {
-        echo "Tool is not enabled";
+        $msg->addError('TOOL_NOT_ENABLED');
+        header("Location: ../index.php");
         exit;
     }
     $usercourse = new UserCoursesDAO();
@@ -45,12 +46,12 @@ if ( $context->valid ) {
         $pwd = 'ltiprovider:'.$tool[0]['tool_id'].':'.$context->getUserLKey();
         if (!$ltiuser->Validate($login, $pwd)) {
             if ($ltiuser->enrollments($tool[0]['tool_id']) == $tool[0]['max_enrollments']) {
-                echo 'Maxx No of enrollments crossed';
-                
+                $msg->addError('MAX_ENROLLMENTS_CROSSED');
+                header("Location: ../index.php");
                 exit;
             }
             $user_group_id = 4;
-            $email = lti.":".$context->getUserEmail();
+            $email = lti.":".($context->getUserEmail() ? $context->getUserEmail(): $login);
             $first_name = 'LTI';
             $last_name = 'user';
             $role = 0;
@@ -78,11 +79,17 @@ if ( $context->valid ) {
                              $postal_code,
                              $status
                             );
+        } else {
+            if (!$ltiuser->isEnabled($login)) {
+                $msg->addError('ACCOUNT_DISABLED');
+                header("Location: ../index.php");
+                exit;
+            }
         }
         $user = $ltiuser->Validate($login, $pwd);                  //Check if the user created!
         //check if the user is assigned to any tool
         if (!$ltiuser->istoolAssignedToUser($user[0]['user_id'], $tool[0]['tool_id'])) {
-            $ltiuser->assignToolToUser($user[0]['user_id'], $tool[0]['tool_id']);
+            $ltiuser->assignToolToUser($user[0]['user_id'], $tool[0]['tool_id'], mysql_real_escape_string($context->getUserName()));
         }
         //enroll the user in course
         if (!$ltiuser->isEnrolled($user[0]['user_id'])) {

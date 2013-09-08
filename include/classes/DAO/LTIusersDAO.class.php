@@ -104,6 +104,19 @@ class LTIusersDAO extends UsersDAO {
         }
     }
 
+    /**
+     * Delete a particular user.
+     * @access  public
+     * @param   user_id
+     * @author  Dhruv Jagetiya
+     */
+    public function Delete($user_id) {
+        parent::Delete($user_id);
+        $this->unroll($user_id);
+        $sql = "DELETE FROM ".TABLE_PREFIX."lti_users WHERE user_id = ".$user_id;
+        $this->execute($sql);
+    }
+    
      /**
      * Check if a tool is assigned to user.
      * @access  public
@@ -118,12 +131,12 @@ class LTIusersDAO extends UsersDAO {
      /**
      * Assign a tool to lti user.
      * @access  public
-     * @param   user_id, tool_id
+     * @param   user_id, tool_id, user_name
      * @return  true if successful else false
      * @author  Dhruv Jagetiya
      */
-    public function assignToolToUser($user_id, $tool_id) {
-        $sql = "INSERT INTO ".TABLE_PREFIX."lti_users VALUES(".$user_id.",".$tool_id.")";
+    public function assignToolToUser($user_id, $tool_id, $user_name) {
+        $sql = "INSERT INTO ".TABLE_PREFIX."lti_users VALUES(".$user_id.",".$tool_id.",'".$user_name."')";
         return $this->execute($sql);
     }
      /**
@@ -151,33 +164,14 @@ class LTIusersDAO extends UsersDAO {
         return ($this->execute($sql));
     }
     /**
-     * Unroll all LTI user of a tool by setting status = 0
-     * @access  public
-     * @param   tool_id
-     * @return  True if successful else false
-     * @author  Dhruv Jagetiya
-     */
-    public function unrollAll($tool_id) {
-        $sql = "SELECT * FROM ".TABLE_PREFIX."lti_users where tool_id=".$tool_id;
-        $users = $this->execute($sql);
-        if (is_array($users)) {
-            foreach ($users as $user) {
-                if (!$this->unroll($user['user_id'])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-    /**
-     * Unroll a user.
+     * Unroll a user from a course.
      * @access  public
      * @param   user_id
      * @return  True if successful else false
      * @author  Dhruv Jagetiya
      */
     public function unroll($user_id) {
-        $sql = "UPDATE ".TABLE_PREFIX."users set status = 0 where user_id = ".$user_id;
+        $sql = "Delete from ".TABLE_PREFIX."user_courses where user_id = ".$user_id;
         return ($this->execute($sql));
     }
     /**
@@ -192,8 +186,58 @@ class LTIusersDAO extends UsersDAO {
         $array = ($this->execute($sql));
         return $array ? $array[0]['course_id'] : false;
     }
-    
-    
+    /**
+     * Get all users assigned to a tool.
+     * @access  public
+     * @param   tool_id
+     * @return  All the users assigned to that tool
+     * @author  Dhruv Jagetiya
+     */
+    public function getUserByToolId($tool_id) {
+        $sql = "SELECT * from ".TABLE_PREFIX."lti_users l, ".TABLE_PREFIX."users u where l.tool_id = ".$tool_id. " AND l.user_id = u.user_id";
+        return ($this->execute($sql));
+    }
+    /**
+     * Check if the user is LTI user or not.
+     * @access  public
+     * @param   user_id
+     * @return  True if user_id belongs to a LTI user
+     * @author  Dhruv Jagetiya
+     */
+    public function isLTIuser($user_id) {
+        $sql = "SELECT * from ".TABLE_PREFIX."lti_users l, ".TABLE_PREFIX."users u where l.user_id = u.user_id  AND l.user_id = ".$user_id;
+        return ($this->execute($sql));
+    }
+    /**
+     * Disable a LTI user
+     * @access  public
+     * @param   user_id
+     * @author  Dhruv Jagetiya
+     */
+    public function Disable($user_id) {
+        parent::setStatus($user_id, 0);
+    }
+    /**
+     * Enable a LTI user
+     * @access  public
+     * @param   user_id
+     * @author  Dhruv Jagetiya
+     */
+    public function Enable($user_id) {
+        parent::setStatus($user_id, 1);
+    }
+    /**
+     * Check if a LTI user is enabled
+     * @access  public
+     * @param   login
+     * @author  Dhruv Jagetiya
+     */
+    public function isEnabled($login) {
+        $sql = "Select status from ".TABLE_PREFIX."users where login = '".$login."'";
+        $isEnabled = $this->execute($sql);
+        return ($isEnabled[0]['status']);
+    }
+
 }
 
 ?>

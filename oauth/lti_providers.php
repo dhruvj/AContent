@@ -24,7 +24,14 @@ if (!isset($_current_user)) {
     require(TR_INCLUDE_PATH.'footer.inc.php');
     exit;
 }
-if ($_GET['edit'] == "Edit") {
+if ($_GET['edit_users']) {
+    if (isset($_GET['id'])) {
+        header("Location: ./lti_users.php?tool_id=".$_GET['id']);
+    } else {
+        $msg->addError('INVALID_TOOL');
+    }
+}
+if (isset($_GET['edit'])) {
     if (isset($_GET['id'])) {
         header("Location: ./ltiprovider_form.php?edit=Edit&id=".$_GET['id']);
     } else {
@@ -32,13 +39,13 @@ if ($_GET['edit'] == "Edit") {
     }
 }
 $toolprovider = new ToolProviderDAO();
-if ($_GET['delete'] == "Delete") {
+if (isset($_GET['delete'])) {
     if (isset ($_GET['id'])) {
         if ($toolprovider->isToolByUser($_SESSION['user_id'], intval($_GET['id']))) {
             if ($toolprovider->Delete(intval($_GET['id']))) {
                 $msg->addFeedback('ACTION_COMPLETED_SUCCESSFULLY');
             } else {
-                $msg->addError('UNABLE_TO_DELETE');
+                $msg->addError('INVALID_TOOL');
             }
         } else {
             $msg->addError('INVALID_TOOL');
@@ -47,6 +54,7 @@ if ($_GET['delete'] == "Delete") {
         $msg->addError('INVALID_TOOL');
     }
     header("Location: ./lti_providers.php");
+    exit;
 }
 
 $course = new UserCoursesDAO();
@@ -60,7 +68,7 @@ if (is_array($tools)) {
         $mycourse = $course->getCourseByToolId($tool['tool_id']);
         $mytool['course_title'] = $mycourse[0]['title'];
         $mytool['enabled'] = $tool['enabled'];
-        $mytool['url'] = $_SERVER['HTTP_HOST'].str_replace('lti_providers.php', '', $_SERVER['REQUEST_URI'])."/tool.php?id=".$mytool['tool_id'];
+        $mytool['url'] = $_SERVER['HTTP_HOST'].preg_replace('/lti.+/', '', $_SERVER['REQUEST_URI'])."tool.php?id=".$mytool['tool_id'];
         // Tool Info to be displayed in $mytools
         array_push($mytools, $mytool);
     }
