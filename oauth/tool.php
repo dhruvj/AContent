@@ -45,7 +45,7 @@ if ( $context->valid ) {
         $login = 'ltiprovider:'.$tool[0]['tool_id'].':'.$context->getUserLKey();               //todo:  may have to change
         $pwd = 'ltiprovider:'.$tool[0]['tool_id'].':'.$context->getUserLKey();
         if (!$ltiuser->Validate($login, $pwd)) {
-            if ($ltiuser->enrollments($tool[0]['tool_id']) == $tool[0]['max_enrollments']) {
+            if ($ltiuser->enrollments($tool[0]['tool_id']) == $tool[0]['max_enrollments'] && $tool[0]['max_enrollments'] != 0) {
                 $msg->addError('MAX_ENROLLMENTS_CROSSED');
                 header("Location: ../index.php");
                 exit;

@@ -57,7 +57,7 @@ if (isset($_POST['submit'])) {
         $msg->addError('INVALID_COURSE');
     }
     //check on max enrollments: it must be >0 and an integer
-    if (!(intval($tool['max_enrollments']) > 0)) {
+    if (!(intval($tool['max_enrollments']) >= 0)) {
         $msg->addError('INVALID_ENROLLMENTS');
     }
     //checks done!
