@@ -127,6 +127,7 @@ INSERT INTO `language_text` VALUES ('en', '_msgs', 'TR_CONFIRM_ADD_TEST_QUESTION
 ('en', '_msgs', 'TR_ERROR_INVALID_SHARED_SECRET', 'Invalid Shared Secret.', '2013-08-30 12:30:10', ''),
 ('en', '_msgs', 'TR_ERROR_INVALID_COURSE', 'Invalid Course.', '2013-08-30 12:30:10', ''),
 ('en', '_msgs', 'TR_ERROR_INVALID_ENROLLMENTS', 'Invalid Enrollments.', '2013-08-30 12:30:10', ''),
+('en', '_msgs', 'TR_ERROR_CONSUMER_KEY_EXISTS', 'Consumer Key Already Exists.', '2013-08-30 12:30:10', ''),
 ('en', '_msgs', 'TR_FEEDBACK_ACCOUNT_CONFIRMED', 'Account has been confirmed.', '2010-01-27 15:48:35', ''),
 ('en', '_msgs', 'TR_FEEDBACK_ACTION_COMPLETED_SUCCESSFULLY', 'Action completed successfully.', '2010-01-27 15:48:35', ''),
 ('en', '_msgs', 'TR_FEEDBACK_ARCHIVE_EXTRACTED', 'Archive has been extracted successfully.', '2010-04-07 15:15:30', ''),
