@@ -31,8 +31,12 @@
 		</tr>
 
 		<tr>
+            <?php if ($this->isedit == 0) { ?>
 			<th align="left"><span class="required" title="<?php echo _AT('required_field'); ?>">*</span><label for="consumer_key"><?php echo _AT('consumer_key'); ?></label>:</th>
-			<td align="left"><input id="consumer_key" name="consumer_key" <?php if ($this->isedit == 1) echo " readonly "; ?>type="text" size="60" value="<?php echo $this->tool['consumer_key']; ?>" /> <?php echo _AT('lti_key_range'); ?></td>
+			<td align="left"><input id="consumer_key" name="consumer_key" type="text" size="60" value="<?php echo $this->tool['consumer_key']; ?>" /> <?php echo _AT('lti_key_range'); ?></td>
+            <?php } else {?>
+            <input id="consumer_key" name="consumer_key" type="hidden"  value="<?php echo $this->tool['consumer_key']; ?>" /> 
+            <?php } ?>
 		</tr>
     
 		<tr>

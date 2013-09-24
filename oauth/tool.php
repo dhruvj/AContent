@@ -42,7 +42,7 @@ if ( $context->valid ) {
     if ($context->isInstructor() && $context->getUserEmail() == $author['email']) {
         $_SESSION['user_id'] = $author['user_id'];
     } else {
-        $login = 'ltiprovider:'.$tool[0]['tool_id'].':'.$context->getUserLKey();               //todo:  may have to change
+        $login = 'ltiprovider:'.$tool[0]['tool_id'].':'.$context->getUserLKey();
         $pwd = 'ltiprovider:'.$tool[0]['tool_id'].':'.$context->getUserLKey();
         if (!$ltiuser->Validate($login, $pwd)) {
             if ($ltiuser->enrollments($tool[0]['tool_id']) == $tool[0]['max_enrollments'] && $tool[0]['max_enrollments'] != 0) {
@@ -95,7 +95,7 @@ if ( $context->valid ) {
         if (!$ltiuser->isEnrolled($user[0]['user_id'])) {
             $ltiuser->enroll($user[0]['user_id'], $tool[0]['course_id'], 2);
         }
-        //login!
+        //login
         $ltiuser->setLastLogin($user[0]['user_id']);
         $_SESSION['user_id'] = $user[0]['user_id'];
     }
